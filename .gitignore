@@ -5,16 +5,20 @@
 # sbt specific
 .cache
 .history
-.lib/
+lib/
 dist/*
 target/
 lib_managed/
 src_managed/
 project/boot/
 project/plugins/project/
+project/target/
+bin/
 
 .settings
 .metadata
+.classpath
+.project
 
 # Scala-IDE specific
 .scala_dependencies
