@@ -1,9 +1,5 @@
 package sparkGamePlayer
 
-import java.awt.Toolkit
-import java.awt.Image
-import java.net.URL
-
 import org.opencv.core.Core
 import org.opencv.core.Core.{rectangle => drawRectangle}
 import org.opencv.core.Core.MinMaxLocResult

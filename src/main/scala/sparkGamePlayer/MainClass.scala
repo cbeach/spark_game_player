@@ -19,6 +19,7 @@ import org.opencv.imgproc.Imgproc;
 
 import emulatorInterface._;
 
+
 object MainClass {
     def main(args: Array[String]) {
         System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
@@ -31,7 +32,9 @@ object MainClass {
             .set("spark.driver.memory", "4g")
             .set("spark.storage.memoryFraction", "1")
         val ssc = new StreamingContext(conf, Seconds(1))
-        val nestopiaReceiverStream = ssc.receiverStream(new Nestopia(imageDirectory, 1055, 3000));
+        val nestopiaReceiverStream = ssc.receiverStream(new Nestopia(imageDirectory, 1055, 7));
+
+        
         val gameFrames = nestopiaReceiverStream.map(_ match {
             case RawGameFrame(nameOfGame, frameNumber, frameData, height, width, imageType) => {
                 var mat: Mat = new Mat(height, width, imageType)
@@ -40,17 +43,10 @@ object MainClass {
                 GameFrame(nameOfGame, frameNumber, mat)
             }
         })
-        
-        val tiles = gameFrames.map(frame => {
-            new TileFinder().findTiles(frame)
+        val features = gameFrames.map({
+            new SpriteFinder().extractFeatures(_)
         })
-
-        tiles.map(new TileFinder().markTiles(_)).foreachRDD(rdd => {
-            rdd.foreach( 
-                frame => imwrite(s"/home/casey/dev/emulators/analyzed/segmented/${frame.number}.png", frame.data)
-            )
-        })
-        tiles.map(spriteSet => spriteSet.frame.data.release())
+        features.count.print
         
         ssc.start()
         ssc.awaitTermination()
